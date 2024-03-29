@@ -1,0 +1,9 @@
+﻿services:
+
+  app:
+    command: ["solo-mode"]
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 18080:8080/tcp

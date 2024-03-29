@@ -1,0 +1,31 @@
+﻿services:
+
+  rabbit:
+    image: rabbitmq:3
+    volumes:
+      - ./rabbit/config:/etc/rabbitmq
+      - rabbit:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 25672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: "username"
+      RABBITMQ_DEFAULT_PASS: "password"
+
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./scripts/wait-for-postgres.sh:/wait-for-postgres.sh
+      - ./scripts/wait-for-rabbit.sh:/wait-for-rabbit.sh
+    ports:
+      - 15432:5432
+    environment:
+      POSTGRES_USER: "username"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "test"
+
+volumes:
+
+  rabbit:
+  postgres:
