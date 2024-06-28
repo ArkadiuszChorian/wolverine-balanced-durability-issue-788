@@ -5,17 +5,12 @@ using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var isRunFromContainer = args.ElementAtOrDefault(0) == "RunFromContainer";
-var useSoloMode = args.ElementAtOrDefault(1) == "SoloMode";
-
 builder.Host.UseWolverine(options =>
 {
     options.UseRabbitMq(connectionFactory =>
     {
-        connectionFactory.HostName = isRunFromContainer ? "rabbit" : "localhost";
-        connectionFactory.Port = isRunFromContainer ? 5672 : 25672;
-        connectionFactory.UserName = "username";
-        connectionFactory.Password = "password";
+        connectionFactory.HostName = "localhost";
+        connectionFactory.Port = 5672;
     });
 
     options.Publish(rules =>
@@ -24,14 +19,11 @@ builder.Host.UseWolverine(options =>
         rules.ToRabbitTopics("test.exchange");
     });
 
-    // If Solo mode is used instead of Balanced app is able to start
-    if (useSoloMode)
-        options.Durability.Mode = DurabilityMode.Solo;
+    options.Durability.Mode = DurabilityMode.Balanced;
 });
 
-var dbConnectionString = isRunFromContainer
-    ? "Server=postgres;Port=5432;User Id=username;Password=password;Database=test"
-    : "Server=localhost;Port=15432;User Id=username;Password=password;Database=test";
+var dbConnectionString =
+    "Server=localhost;Port=5433;User Id=postgres;Password=postgres;Database=postgres";
 
 builder.Services
     .AddMarten(options => options.Connection(dbConnectionString))
